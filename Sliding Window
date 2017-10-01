@@ -14,8 +14,8 @@ http://www.geeksforgeeks.org/count-distinct-elements-in-every-window-of-size-k/
 
 Brute force: count distinct elements in a window (O(n * k^2)), which can be improved to O(n * klogk) using sorting.
 O(n): Using a map
-//Didn't test yet
-public int[] countDistinctElements(int[] nums, int k) {
+    //Didn't test yet
+    public int[] countDistinctElements(int[] nums, int k) {
         if (nums == null || nums.length < k) return -1;
         Map<Integer, Integer> map = new HashMap<>();
         int[] res = new int[nums.length - k + 1];
@@ -41,7 +41,7 @@ public int[] countDistinctElements(int[] nums, int k) {
             res[index++] = count;
         }
         return res;
-}
+    }
 
 //Lintcode
 Q2: Sliding Window Unique Elements Sum
