@@ -1,0 +1,170 @@
+Union Find
+
+305. Number of Islands II 
+/*
+A 2d grid map of m rows and n columns is initially
+filled with water. We may perform an addLand operation which turns the water at
+position (row, col) into a land. Given a list of positions to operate, count the
+number of islands after each addLand operation. An island is surrounded by water
+and is formed by connecting adjacent lands horizontally or vertically. You may
+assume all four edges of the grid are all surrounded by water. 
+
+Given m = 3, n = 3, positions = [[0,0], [0,1], [1,2], [2,1]].   
+Result: 1, 1, 2, 3] */
+
+public List<Integer> numIslands2(int m, int n, int[][] positions) {
+    int[] parent = new int[m * n];
+    Arrays.fill(parent, -1);            //kind of visited[][]
+    List<Integer> res = new ArrayList<>();
+    int[][] dirs = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+    for (int[] p : positions) {
+        parent[p[0] * n + p[1]] = p[0] * n + p[1];
+        int count = res.isEmpty() ? 1 : res.get(res.size() - 1) + 1;
+        for (int[] dir : dirs) {
+            int x = dir[0] + p[0];
+            int y = dir[1] + p[1];
+            if (x >= 0 && x < m && y >= 0 && y < n && parent[x * n + y] != -1) {  //visited
+                int parent1 = findParent(x * n + y, parent);        //
+                int parent2 = parent[p[0] * n + p[1]];              //
+                if (parent1 != parent2) count--;                    
+                parent[parent1] = parent2;
+            }
+        }
+        res.add(count);
+    }
+    return res;
+}
+
+private int findParent(int target, int[] parent) {
+    if (target == parent[target]) return target;
+    return findParent(parent[target], parent);
+}
+
+547. Friend Circles 
+/*
+There are N students in a class. Some of them are friends,
+while some are not. Their friendship is transitive in nature. For example, if A
+is a direct friend of B, and B is a direct friend of C, then A is an indirect
+friend of C. And we defined a friend circle is a group of students who are
+direct or indirect friends.
+
+Given a N*N matrix M representing the friend relationship between students in
+the class. If M[i][j] = 1, then the ith and jth students are direct friends with
+each other, otherwise not. And you have to output the total number of friend
+circles among all the students. */
+
+//Union find, O(n^3)
+public int findCircleNum(int[][] M) {
+    int[] parent = new int[M.length];
+    Arrays.fill(parent, -1);
+    for (int i = 0; i < M.length; i++) {
+        for (int j = 0; j < M.length; j++) {
+            if (M[i][j] == 1 && i != j) {
+                union(parent, i, j);
+            }
+        }
+    }
+    int count = 0;
+    for (int i = 0; i < parent.length; i++) {
+        if (parent[i] == -1) count++;
+    }
+    return count;
+}
+
+void union(int[] parent, int x, int y) {
+    int xset = find(parent, x);
+    int yset = find(parent, y);
+    if (xset != yset) {
+        parent[xset] = yset;
+    }
+}
+
+int find(int[] parent, int i) {
+    if (parent[i] == -1) return i;
+    return find(parent, parent[i]);
+}
+
+
+684. Redundant Connection
+/*
+In this problem, a tree is an undirected graph that is connected and has no cycles.
+The given input is a graph that started as a tree with N nodes (with distinct
+values 1, 2, ..., N), with one additional edge added. The added edge has two
+different vertices chosen from 1 to N, and was not an edge that already existed.
+
+The resulting graph is given as a 2D-array of edges. Each element of edges is a
+pair [u, v] with u < v, that represents an undirected edge connecting nodes u
+and v. */
+
+public int[] findRedundantConnection(int[][] edges) {
+    int[] parent = new int[2001];
+    for (int i = 0; i < parent.length; i++) {
+        parent[i] = i;
+    }
+
+    for (int[] edge : edges) {
+        int p1 = edge[0], p2 = edge[1];
+        if (find(parent, p1) == find(parent, p2)) return edge;
+        else {
+            parent[find(parent, p1)] = find(parent, p2);
+        }
+        return new int[2];
+    }
+}
+
+private int find(int[] parent, int i) {
+    if (parent[i] == i) return i;
+    return find(parent, parent[i]);
+}
+
+
+261. Graph Valid Tree 
+/*
+Given n nodes labeled from 0 to n - 1 and a list of undirected edges 
+(each edge is a pair of nodes), write a function to check
+whether these edges make up a valid tree. */
+//need to meet three conditions: 1) n = edges.length + 1, 2) no cycle, 3) connected
+public boolean validTree(int n, int[][] edges) {
+    if (n != edges.length + 1) return false;
+    int[] parent = new int[n];
+    Arrays.fill(parent, -1);
+    for (int i = 0; i < edges.length; i++) {
+        int x = find(edges[i][0], parent);
+        int y = find(edges[i][1], parent);
+        if (x == y) return false;
+        parent[x] = y;
+    }
+    return true;
+}
+private int find(int i, int[] parent) {
+    if (parent[i] == -1) return i;
+    return find(parent[i], parent);
+}
+
+323. Number of Connected Components in an Undirected Graph
+//Given n nodes labeled from 0 to n - 1 and a list of undirected edges (each edge is a pair of 
+//nodes), write a function to find the number of connected components in an undirected graph.
+private int[] parent;
+public int countComponents(int n, int[][] edges) {
+    Set<Integer> set = new HashSet<>();
+    parent = new int[n];
+    for (int i = 0; i < n; i++) {
+        parent[i] = i;          //
+    }
+    for (int[] e : edges) {
+        union(e[0], e[1]);
+    }
+    for (int i = 0; i < n; i++) {
+        set.add(find(i));
+    }
+    return set.size();
+}
+
+private int find(int i) {
+    if (parent[i] == i) return i;
+    return find(parent[i]);
+}
+
+private void union(int node1, int node2) {
+    parent[find(node1)] = find(node2);
+}
