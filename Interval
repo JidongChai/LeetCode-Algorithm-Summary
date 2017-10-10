@@ -1,0 +1,246 @@
+Interval related
+
+class Interval {
+	int start, end;
+	Interval() {start = 0; end = 0;}
+	Interval(int s, int e) {start = s; end = e;}
+}
+
+56. Merge Intervals
+//sort using start time
+//prev, O(n) to get the result
+public List<Interval> merge(List<Interval> intervals) {
+	List<Interval> res = new ArrayList<>();
+	if (intervals == null || intervals.size() == 0) return res;
+	Collections.sort(intervals, (a, b) -> (a.start == b.start ? a.end - b.end : a.start - b.start));
+	Interval prev = intervals.get(0);
+	for (int i = 1; i < intervals.size(); i++) {
+		Interval curr = intervals.get(i);
+		if (curr.start > prev.end) {
+			res.add(prev);
+			prev = curr;
+		} else {
+			prev.end = Math.max(prev.end, curr.end);
+		}
+	}
+	res.add(prev);
+	return res;
+}
+
+57. Insert Interval
+/*
+Given a set of non-overlapping intervals, insert a new interval into the intervals 
+(merge if necessary).
+You may assume that the intervals were initially sorted according to their start times.
+
+Given intervals [1,3],[6,9], insert and merge [2,5] in as [1,5],[6,9]
+*/
+
+public List<Interval> insert(List<Interval> intervals, Interval newInterval) {
+	List<Interval> res = new ArrayList<>();
+	int i = 0, n = intervals.size();
+	while (i < n && intervals.get(i).end < newInterval.start) {
+		res.add(intervals.get(i));
+		i++;
+	}
+	while (i < n && intervals.get(i).start <= newInterval.end) {
+		newInterval.start = Math.min(intervals.get(i).start, newInterval.start);
+		newInterval.end = Math.max(intervals.get(i).end, newInterval.end);
+		i++;
+	}
+	//intervals.start > newInterval.end
+	while (i < n) {
+		res.add(intervals.get(i));
+		i++;
+	}
+	return res;
+}
+
+
+352. Data Stream as Disjoint Intervals
+/*
+Given a data stream input of non-negative integers a1, a2, ..., an, ..., summarize the 
+numbers seen so far as a list of disjoint intervals.
+For example, suppose the integers from the data stream are 1, 3, 7, 2, 6, ..., 
+then the summary will be:
+[1, 1]
+[1, 1], [3, 3]
+[1, 1], [3, 3], [7, 7]
+[1, 3], [7, 7]
+[1, 3], [6, 7]
+*/
+
+class SummaryRanges {
+	TreeSet<Interval> set;
+	public SummaryRanges() {
+		set = new TreeSet<>((a, b) -> (a.start == b.start ? a.end - b.end : a.start - b.start));
+	}
+	public void addNum(int val) {
+		Interval interval = new Interval(val, val);
+		Interval low = set.floor(interval), high = set.ceiling(interval);
+		if (low != null && low.end == val) return;
+		if (high != null && high.start == val) return;
+		if (low != null && low.end + 1 == val && high != null && val + 1 == high.start) {
+			low.end = high.end;
+		} else if (low != null && low.end + 1 >= val) {
+			low.end = val;
+		} else if (high != null && val + 1 >= high.start) {
+			high.start = val;
+		} else {
+			set.add(interval);
+		}
+	}
+	public List<Interval> getIntervals() {
+		return new ArrayList<>(set);
+	}
+}
+
+436. Find Right Interval 
+/*
+Given a set of intervals, for each of the interval i,
+check if there exists an interval j whose start point is bigger than or equal to
+the end point of the interval i, which can be called that j is on the "right" of
+i.
+For any interval i, you need to store the minimum interval j's index, which
+means that the interval j has the minimum start point to build the "right"
+relationship for interval i. If the interval j doesn't exist, store -1 for the
+interval i. Finally, you need output the stored value of each interval as an
+array.
+
+Input: [ [3,4], [2,3], [1,2] ]
+
+Output: [-1, 0, 1]
+*/
+
+public int[] findRightInterval(Interval[] intervals) {
+	TreeMap<Integer, Integer> map = new TreeMap<>();
+	int n = intervals.length;
+	int[] res = new int[n];
+	for (int i = 0; i < n; i++) {
+		map.put(intervals[i].start, i);
+	}
+	for (int i = 0; i < n; i++) {
+		Map.Entry<Integer, Integer> pos = map.ceilingEntry(intervals[i].end);
+		res[i] = pos == null ? -1 : pos.getValue();
+	}
+	return res;
+}
+
+252. Meeting Rooms
+/*
+Given an array of meeting time intervals consisting of start and end times [[s1,e1],[s2,e2],
+...] (si < ei), determine if a person could attend all meetings.
+*/
+//sort and then compare
+public boolean canAttendMeetings(Interval[] intervals) {
+    Arrays.sort(intervals, (a, b) -> (a.start - b.start));
+    for (int i = 0; i < intervals.length - 1; i++) {
+        if (intervals[i].end > intervals[i + 1].start) {
+            return false;
+        }
+    }
+    return true;
+}
+
+253. Meeting Rooms II
+/*
+find the minimum number of conference rooms required
+
+Given [[0, 30],[5, 10],[15, 20]],
+return 2
+*/
+//Method 1: put Interval.end into a minHeap, if (interval.start > minHeap.peek()) minHeap.poll()
+//return minHeap.size(), O(nlogn)
+//Improvement can be: Every time poll from minHeap and update the interval if necessary...
+//Method 2: start array: [0 5 15], end array: [10 20 30], two pointers
+//Method 3: List<Pair> list, Pair {int s, flag}, if (start) flag = 1; if (end) flag = -1;
+//sort and then count
+
+502. IPO
+/*
+You are given several projects. For each project i, it has a pure profit Pi and a minimum 
+capital of Ci is needed to start the corresponding project. Initially, you have W capital. 
+When you finish a project, you will obtain its pure profit and the profit will be added to 
+your total capital.
+To sum up, pick a list of at most k distinct projects from given projects to maximize your 
+final capital, and output your final maximized capital.
+
+Input: k=2, W=0, Profits=[1,2,3], Capital=[0,1,1].
+
+Output: 4
+*/
+
+public int findMaximizedCapital(int k, int W, int[] Profits, int[] Capital) {
+    //O(nlgn)
+    PriorityQueue<int[]> pqCap = new PriorityQueue<>((a, b) -> (a[0] - b[0]));
+    PriorityQueue<int[]> pqPro = new PriorityQueue<>((a, b) -> (b[1] - a[1]));
+    int n = Profits.length;
+    for (int i = 0; i < n; i++) {
+        pqCap.offer(new int[] {Capital[i], Profits[i]});
+    }
+    for (int i = 0; i < k; i++) {
+        while (!pqCap.isEmpty() && pqCap.peek()[0] <= W) {
+            pqPro.offer(pqCap.poll());
+        }
+        if (pqPro.isEmpty()) break;
+        W += pqPro.poll()[1];
+    }
+    return W;
+}
+    
+    /* O(n ^ 2): TLE
+    PriorityQueue<int[]> q = new PriorityQueue<>((a, b) -> (b[1] - a[1]));
+    int n = Profits.length;
+    boolean[] visited = new boolean[n];
+    for (int i = 0; i < n; i++) {
+        if (Capital[i] <= W) {
+            q.offer(new int[] {Capital[i], Profits[i]});
+            visited[i] = true;
+        }
+    }
+    if (q.size() == 0) return W;
+    int sum = W;
+    for (int i = 0; i < k && i < n; i++) {
+        int[] cur = q.poll();
+        //System.out.println(cur[0] + " " + cur[1]);
+        sum += cur[1];
+        for (int j = 0; j < n; j++) {
+            if (visited[j]) continue;
+            if (Capital[j] <= sum) {
+                q.offer(new int[] {Capital[j], Profits[j]});
+                visited[j] = true;
+            }
+        }
+    }
+    return sum;
+} */
+
+630. Course Schedule III
+/*
+There are n different online courses numbered from 1 to n. Each course has some duration
+(course length) t and closed on dth day. A course should be taken continuously for t days and 
+must be finished before or on the dth day. You will start at the 1st day.
+
+Given n online courses represented by pairs (t,d), your task is to find the maximal number of 
+courses that can be taken.
+
+Input: [[100, 200], [200, 1300], [1000, 1250], [2000, 3200]]
+Output: 3
+
+Explanation 1: 100 (0 + 100<200) + 1000 (1100 < 1250) + 200 (1100 + 200 <= 1300)
+2: 100 + 1000 + 2000
+*/
+
+public int scheduleCourse(int[][] courses) {
+	Arrays.sort(courses, (a, b) -> (a[1] - b[1]));
+	Queue<Integer> pq = new PriorityQueue<>((a, b) -> (b - a));
+	int time = 0;
+	for (int[] c : courses) {
+		time += c[0];
+		pq.offer(c[0]);
+		if (time > c[1]) {   //If time exceeds, drop the previous course which costs the most time. (That must be the best choice!)
+			time -= pq.poll();
+		}
+	}
+	return pq.size();
+}
