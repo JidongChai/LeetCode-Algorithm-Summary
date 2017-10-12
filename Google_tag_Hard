@@ -1,0 +1,1251 @@
+527. Word Abbreviation
+//Generate shortest abbr first, then check if there are duplicates; if so increase the length
+//of prefix
+
+//helper function: get the abbr with prefix.length() == k
+String makeAbbr(String s, int k) {
+	if (s.length() - 2 <= k) return s;
+	StringBuilder sb = new StringBuilder();
+	sb.append(s.substring(0, k));
+	sb.append(s.length() - k - 1);
+	sb.append(s.charAt(s.length() - 1));
+	return sb.toString();
+}
+
+public List<String> wordsAbbreviation(List<String> dict) {
+	int n = dict.size();
+	int[] prefix = new int[n];
+	String[] abbr = new String[n];
+	for (int i = 0; i < n; i++) {
+		prefix[i] = 1;
+		abbr[i] = makeAbbr(dict.get(i), 1);
+	}
+	for (int i = 0; i < n; i++) {
+		while (true) {
+			Set<String> set = new HashSet<>();
+			for (int j = i + 1; j < n; j++) {
+				if (abbr[i].equals(abbr[j])) {
+					set.add(abbr[j]);
+				}
+				if (set.isEmpty()) break;
+				set.add(abbr[i]);
+				for (int k : set) {
+					abbr[k] = makeAbbr(dict.get(k), ++prefix[k]);
+				}
+			}
+		}
+	}
+	return Arrays.asList(abbr);
+}
+
+
+//sliding window substring in the String
+340. Longest Substring with At Most K Distinct Characters
+while (map.size() > k)
+159. Longest Substring with At Most Two Distinct Characters
+424. Longest Repeating Character Replacement
+/*
+Input:
+s = "AABABBA", k = 1
+Output:
+4
+Explanation:
+Replace the one 'A' in the middle with 'B' and form "AABBBBA".
+The substring "BBBB" has the longest repeating letters, which is 4.
+*/
+public int characterReplacement(String s, int k) {
+    //(length of substring - number of times of the maximum occurring       
+    //character in the substring) <= k
+    //s = "AABABBA", k = 1
+    int[] map = new int[26];
+    int maxCount = 0, i = 0, j = 0;
+    int maxLen = 0;
+    while (j < s.length()) {
+        map[s.charAt(j) - 'A']++;
+        maxCount = Math.max(maxCount, map[s.charAt(j) - 'A']);
+        if (j - i + 1 - maxCount > k) {         //j - i + 1
+            map[s.charAt(i) - 'A']--;
+            i++;
+        }
+        j++;
+        maxLen = Math.max(maxLen, j - i);
+    }
+    return maxLen;
+ }
+
+308. Range Sum Query 2D - Mutable
+
+425. Word Squares (Valid word square)
+
+643. Maximum Average Subarray I 
+//find the contiguous subarray of given length k
+that has the maximum average value 
+644. Maximum Average Subarray II find the
+//find contiguous subarray whose length is greater than or equal to k that has the
+//maximum average value
+//nlog(max - min), log time to find the desired value, O(n) to check if it is possible
+boolean helper(int[] nums, int k, double mid) {
+	int n = nums.length;
+	double[] sum = new double[n + 1];
+	sum[0] = 0;
+	double minPre = 0;
+	for (int i = 1; i <= n; i++) {
+		sum[i] = sum[i - 1] + nums[i - 1] - mid;		//
+		if (i >= k && sum[i] - minPre >= 0) {
+			return true;
+		}
+		if (i >= k) {
+			minPre = Math.min(minPre, sum[i - k + 1]);		//
+		}
+	}
+	return false;
+}
+
+DFS with Memo
+568. Maximum Vacation Days
+//Integer[][] memo = new Integer[flights.length][days[0].length];
+//if (flights[currCity][i] == 1 || currCity == i), compare the results and get max
+fligths:		 days: (city i, week j)
+[0 1 1]			[1 3 1]
+[1 0 1]			[6 0 3]
+[1 1 0]			[3 3 3]
+
+317. Shortest Distance from All Buildings
+/*
+Each 0 marks an empty land which you can pass by freely.
+Each 1 marks a building which you cannot pass through.
+Each 2 marks an obstacle which you cannot pass through.
+The point (1,2) is an ideal empty land to build a house, as the total travel 
+distance of 3+3+1=7 is minimal. So return 7. 
+*/
+1 - 0 - 2 - 0 - 1
+|   |   |   |   |
+0 - 0 - 0 - 0 - 0
+|   |   |   |   |
+0 - 0 - 1 - 0 - 0
+
+
+551. Student Attendance Record I
+/*
+A, L, P
+A student could be rewarded if his attendance record doesn't contain more than one 'A' 
+(absent) or more than two continuous 'L' (late).
+
+You need to return whether the student could be rewarded according to his attendance 
+record. */
+boolean checkRecord(String s) {
+	int countA = 0, continuousL = 0;
+	for (int i = 0; i < s.length(); i++) {
+		char ch = s.charAt(i);
+		if (ch == 'A') {
+			countA++;
+			continuousL = 0;
+		} else if (ch == 'L') {
+			continuousL++;
+		} ele {
+			continuousL = 0;
+		}
+		if (countA > 1 || continuousL > 2) {
+			return false;
+		}
+	}
+	return true;
+}
+552. Student Attendance Record II
+/* Given a positive integer n, return the number of all possible attendance records with 
+length n, which will be regarded as rewardable. The answer may be very large, 
+return it after mod 109 + 7. */
+1) No A: f[i] = 2 * f[i - 1] + f[i - 4]
+2) with A in the ith position: f[i - 1] * f[n - i]
+
+
+218. The Skyline Problem
+//need to add start/end and distinguish, {b[0], -b[2]} is start, {b[1], b[2]} is end
+//sort by start time
+//get max, if it is different then update 
+public List<int[]> getSkyline(int[][] buildings) {
+	List<int[]> heihgts = new ArrayList<>();
+	for (int[] b : buildings) {
+		heights.add(new int[] {b[0], -b[2]});
+		heights.add(new int[] {b[1], b[2]});
+	}
+	TreeMap<Integer, Integer> map = new TreeMap<>(Collections.reverseOrder());
+	map.firstKey();
+}
+
+329. Longest Increasing Path in a Matrix
+/*
+nums = [
+  [9,9,4],
+  [6,6,8],
+  [2,1,1]
+]
+Longest increasing path is [1 2 6 9]
+*/
+
+public int longestIncreasingPath(int[][] matrix) {
+	int m = matrix.length, n = matrix[0].length;
+	int res = 1;
+	for (int i = 0; i < m; i++) {
+		for (int j = 0; j < n; j++) {
+			res = Math.max(res, dfs(matrix, i, j, memo));
+		}
+	}
+	return res;
+}
+
+int[][] dirs = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+private int dfs(int[][] matrix, int i, int j, int[][] memo) {
+	if (memo[i][j] > 0) return memo[i][j];
+	int max = 1;
+	for (int[] dir : dirs) {
+		int x = dir[0] + i;
+		int y = dir[1] + j;
+		if (x < 0 || x >= matrix.length || y < 0 || y >= matrix[0].length
+			|| matrix[x][y] <= matrix[i][j]) {
+			continue;
+		}
+		int len = 1 + dfs(matrix, x, y, memo);
+		Math.max = (max, len);
+	}
+	memo[i][j] = max;
+	return max;
+}
+
+
+391. Perfect Rectangle
+//Given N axis-aligned rectangles where N > 0, 
+//determine if they all together form an exact cover of a rectangular region.
+//1.the large rectangle area should be equal to the sum of small ones
+//2.the four corner points only appear once, other points appear twice
+Using a set<String>, String p1 = rect[0] + " " + rect[1] to count
+calculate the area as well
+
+407. Trapping Rain Water II
+/*
+Given an m x n matrix of positive integers representing the height of each unit cell in 
+a 2D elevation map, compute the volume of water it is able to trap after raining.
+Given the following 3x6 height map:
+[
+  [1,4,3,1,3,2],
+  [3,2,1,3,2,4],
+  [2,3,3,2,3,1]
+]
+Return 4.
+*/
+//cell {int row, col, height}
+//min heap (a.height - b.height)
+//add all the edges to the heap, visited[][]
+//poll, four directions, x>=0 && x<m && y>=0 && y<n && !visited[x][y]
+//res += Math.max(0, cell.height - heights[x][y])
+//pq.add(new int[] {x, y, Math.max(cell.height, heights[x][y])})
+
+42. Trapping Rain Water
+
+
+297. Serialize and Deserialize Binary Tree
+	1
+   / \
+  2   3
+     / \
+    4   5
+Serialize: [1,2,3,X,X,4,5]
+Deserialize: [1 ]
+
+private final String splitter = ",";
+private final String NN = "X";
+public String serialize(TreeNode root) {
+	StringBuilder res = new StringBuilder();
+	serial(root, res);
+	return res.toString();
+}
+private void serial(TreeNode root, StringBuilder res) {
+	if (root == null) {
+		res.append(NN).append(splitter);
+		return;
+	}
+	res.append(root.val).append(splitter);
+	serial(root.left, res);
+	serial(root.right, res);
+}
+
+public TreeNode deserialize(String data) {
+	Queue<String> q = new LinkedList<>();
+	q.addAll(Arrays.asList(data.split(splitter)));
+	return deserial(q);
+}
+private TreeNode deserial(Queue<String> q) {
+	String val = q.poll();
+	if (val.equals(NN)) return null;
+	TreeNode root = new TreeNode(Integer.parseInt(val));
+	root.left = deserial(q);
+	root.right = deserial(q);
+	return root;
+}
+
+146. LRU Cache
+/*
+get(key) - Get the value (will always be positive) of the key if the key exists 
+in the cache, otherwise return -1.
+put(key, value) - Set or insert the value if the key is not already present. 
+When the cache reached its capacity, it should invalidate the least recently 
+used item before inserting a new item.
+*/
+Both O(1) time
+class Node {
+	int key, value;
+	Node prev, next;
+	Node(int key, int value) {
+		this.key = key;
+		this.value = value;
+	}
+}
+int capacity;
+Map<key, Node> = new HashMap<>();
+Node head, tail;
+
+
+471. Encode String with Shortest Length
+Input: "abbbabbbcabbbabbbc"
+Output: "2[2[abbb]c]"
+
+//if (s.length <= 4) no need to encode
+//how to do the encoding? from inside to outside or vice versa
+public String encode(String s) {
+	int n = s.length();
+	String[][] f = new String[n][n];
+	for (int l = 0; l < n; l++) {		//
+		for (int i = 0; i < n - l; i++) {
+			int j = i + l;
+			String substr = s.substring(i, j + 1);
+			if (j - i < 4) {
+				f[i][j] = substr;
+			} else {
+				f[i][j] = substr;
+				//check if it can be combined with 2 previous strings
+				for (int k = i; k < j; k++) {
+					if ((f[i][k] + f[k + 1][j]).length() < f[i][j].length()) {
+						f[i][j] = f[i][k] + f[k + 1][j];
+					}
+				}
+				//check if itself can find some pattern in it which can be repeated
+				for (int k = 0; k < substr.length() / 2; k++) {
+					String repeatStr = substr.substring(0, k + 1);
+					if (repeatStr != null && substr.length() % repeatStr.length() == 0
+						&& substr.replaceAll(repeatStr, "").length() == 0) {
+						String ss = substr.length() / repeatStr.length() + "[" +
+							repeatStr + "]";
+						if (ss.length() < substr.length()) {
+							f[i][j] = ss;
+						}
+					}
+				}
+			}
+		}
+	}
+	return f[0][n - 1];
+}
+
+ 269. Alien Dictionary
+[
+  "wrt",
+  "wrf",
+  "er",
+  "ett",
+  "rftt"
+]
+The correct order is: "wertf"
+
+//degrees Map<Character, Integer>
+//graph Map<Character, Set<Character>>
+public String alienOrder(String[] words) {
+	Map<Character, Set<Character>> map = new HashMap<>();
+	Map<Character, Integer> degrees = new HashMap<>();
+	for (String word : words) {
+		for (char ch : word.toCharArray()) {
+			degrees.put(ch, 0);
+		}
+	}
+	for (int i = 0; i < words.length - 1; i++) {
+		String curr = words[i];
+		String next = words[i + 1];
+		int len = Math.min(curr.length(), next.length());
+		for (int j = 0; j < len; j++) {
+			char c1 = curr.charAt(j);
+			char c2 = curr.charAt(j);
+			if (c1 != c2) {			//c1 is before c2
+				Set<Character> set = new HashSet<>();
+				if (map.containsKey(c1)) set = map.get(c1);
+				if (!set.contains(c2)) {
+					set.add(c2);
+					map.put(c1, set);
+					degrees.put(c2, degrees.get(c2) + 1);
+				}
+				break;
+			}
+		}
+	}
+	Queue<Character> q = new LinkedList<>();
+	StringBuilder res = new StringBuilder();
+	for (char ch : degrees.keySet()) {
+		if (degrees.get(ch) == 0) {
+			q.offer(ch);
+		}
+	}
+	while (!q.isEmpty()) {
+		char ch = q.poll();
+		res.append(ch);
+		if (map.get(ch) != null) {
+			for (char next : map.get(ch)) {
+				degrees.put(next, degrees.get(next) - 1);
+				if (degrees.get(next) == 0) {
+					q.offer(next);
+				}
+			}
+		}
+	}
+	if (res.length() != degrees.size()) return "";		//check
+	return res.toString();
+}
+
+128. Longest Consecutive Sequence
+Set<Integer> set = new HashSet<>();
+//add element to the set
+//then loop through the array, find (upper - lower - 1) (remove from the set)
+
+312. Burst Balloons
+Given n balloons, indexed from 0 to n-1. Each balloon is painted with a number 
+on it represented by array nums. You are asked to burst all the balloons. 
+If the you burst balloon i you will get nums[left] * nums[i] * nums[right] coins. 
+Here left and right are adjacent indices of i. After the burst, the left and right 
+then becomes adjacent.
+
+ Find the maximum coins you can collect by bursting the balloons wisely.
+
+//brute force, obviously many repeating sub-problems, -> DP
+//f[i][j]: max coints to burst from i to j (excluding i, j)
+//f[i][j] = max(f[i][k] + f[k][j] + nums[i] * nums[k] * nums[j])
+
+public int maxCoins(int[] nums) {
+	int n = nums.length;
+	int[] a = new int[n + 2];
+	a[0] = a[n + 1] = 1;
+	for (int i = 1; i <= n; i++) {
+		a[i] = nums[i - 1];
+	}
+	Integer[][] memo = new Integer[n + 2][n + 2];
+	return helper(a, 0, n + 1, memo);
+}
+
+private int helper(int[] a, int i, int j, Integer[][] memo) {
+	if (memo[i][j] != null) return memo[i][j];
+	if (i + 1 == j) return 0;
+	int ans = 0;
+	for (int k = i + 1; k < j; k++) {
+		int temp += helper(a, i, k, memo) + helper(a, k, j, memo) + nums[i] * nums[k] * nums[j];
+		ans = Math.max(ans, temp);
+	}
+	memo[i][j] = ans;
+	return ans;
+}
+
+683. K Empty Slots
+/*
+Also given an integer k, you need to output in which day there exists two flowers in the 
+status of blooming, and also the number of flowers between them is k and these flowers 
+are not blooming.
+
+If there isn't such day, output -1
+
+OA version: boundary 
+*/
+public int kEmptySlots(int[] flowers, int k) {
+	TreeSet<Integer> set = new TreeSet<>();
+    for (int i = 0; i < flowers.length; i++) {
+        Integer floor = set.floor(flowers[i]);
+        Integer ceil = set.ceiling(flowers[i]);
+        if (floor != null && (floor + k + 1 == flowers[i])) return i + 1;
+        if (ceil != null && (flowers[i] + k + 1 == ceil)) return i + 1;
+        set.add(flowers[i]);
+    }
+    return -1;
+}
+
+79. Word Search
+Given a 2D board and a word, find if the word exists in the grid.
+The same letter cell may not be used more than once.
+min(O(m*n*4^len), O(m*n*m*n))
+
+212. Word Search II
+Given a 2D board and a list of words from the dictionary, find all words in the board.
+The same letter cell may not be used more than once in a word.
+
+public List<String> findWords(char[][] board, String[] words) {
+	List<String> res = new ArrayList<>();
+	TreeNode root = buildTrie(words);	//O(n * l)
+	for (int i = 0; i < board.length; i++) {
+		for (int j = 0; j < board[0].length; j++) {
+			dfs(board, i, j, root, res);
+		}
+	}
+}
+
+private TreeNode buildTrie(String[] words) {
+	TreeNode root = new TreeNode();
+	for (String word : words) {
+		TreeNode p = root;
+		for (char ch : word.toCharArray()) {
+			if (p.next[ch - 'a'] == null) {
+				p.next[ch - 'a'] = new TrieNode();
+			}
+			p = p.next[ch - 'a'];
+		}
+		p.word = word;
+	}
+	return root;
+}
+
+
+157. Read N Characters Given Read4
+/* The read4 API is defined in the parent class Reader4.
+      int read4(char[] buf); */
+
+public class Solution extends Reader4 {
+	/**
+     * @param buf Destination buffer
+     * @param n   Maximum number of characters to read
+     * @return    The number of characters read
+     */
+	public int read(char[] buf, int n) {
+		boolean eof = false;
+		int total = 0;
+		char[] temp = new char[4];
+		while (!eof && total < n) {
+			int count = read4(temp);
+			eof = count < 4;
+			count = Math.min(count, n - count);
+			for (int i = 0; i < count; i++) {
+				buf[total++] = temp[i];
+			}
+		}
+		return total;
+	}
+}
+
+158. Read N Characters Given Read4 II - Call multiple times
+/*
+    "abcd"
+    first call: (buf, 1) a
+    second call: (buf, 3) bcd
+*/
+
+public class Solution extends Reader4 {
+
+	private int buffPtr = 0;
+	private int buffCnt = 0;
+	private char[] buff = new char[4];
+	public int read(char[] buf, int n) {
+		int ptr = 0;
+		while (ptr < n) {
+			if (buffPtr == 0) {
+				buffCnt = read4(buff);
+			}
+			if (buffCnt == 0) break;
+			while (ptr < n && buffPtr < buffCnt) {
+				buf[ptr++] = buff[buffPtr++];
+			}
+			if (buffPtr == buffCnt) buffPtr = 0;
+		}
+		return ptr;
+	}
+}
+
+
+316. Remove Duplicate Letters
+/*
+Given a string which contains only lowercase letters, remove duplicate letters so that 
+every letter appear once and only once. You must make sure your result is the smallest 
+in lexicographical order among all possible results.
+
+Given "bcabc"
+Return "abc"
+
+Given "cbacdcbc"
+Return "acdb"
+*/
+
+public String removeDuplicateLetters(String s) {
+	Deque<Character> stack = new ArrayDeque<>();
+	int[] map = new int[26];
+	boolean[] visited = new boolean[26];			//wonderful
+	for (char ch : s.toCharArray()) {
+		map[ch - 'a']++;
+	}
+	for (char ch : s.toCharArray()) {
+		map[ch - 'a']--;
+		if (visited[ch - 'a']) continue;
+		while (!stack.isEmpty() && ch < stack.peek() && map[ch - 'a'] > 0) {
+			visited[stack.pop() - 'a'] = false;
+		}
+		stack.push(ch);
+		visited[ch - 'a'] = true;
+	}
+	StringBuilder res = new StringBuilder();
+	for (char ch : stack) {
+		res.append(ch);
+	}
+	return res.toString();
+}
+
+
+ 
+358. Rearrange String k Distance Apart
+/*
+Given a non-empty string s and an integer k, rearrange the string such that the same 
+characters are at least distance k from each other.
+All input strings are given in lowercase letters. If it is not possible to rearrange the 
+string, return an empty string "".
+
+s = "aabbcc", k = 3
+Result: "abcabc"
+s = "aaadbbcc", k = 2
+Answer: "abacabcd"
+*/
+
+public String rearrangeString(String s, int k) {
+    //map: frequency of char
+    //maxHeap: greedy-using largest frequencies
+    //waitQueue: put k
+    Map<Character, Integer> map = new HashMap<>();
+    for (char ch : s.toCharArray()) {
+    	map.put(ch, map.getOrDefault(ch, 0) + 1);
+    }
+    Queue<Map.Entry<Character, Integer>> q = new PriorityQueue<>((a, b) - (b.getValue() - a.getValue()));
+    for (Map.Entry<Character, Integer> e : map.entrySet()) {
+    	q.offer(e);
+    }
+    Queue<Map.Entry<Character, Integer>> waitQueue = new LinkedList<>();
+    StringBuilder res = new StringBuilder();
+    while (!q.isEmpty()) {
+    	Map.Entry<Character, Integer> curr = q.poll();
+    	res.append(curr.getKey());
+    	map.put(curr.getKey(), curr.getValue() - 1);
+    	waitQueue.offer(curr);
+    	if (waitQueue.size() < k) {
+    		continue;
+    	}
+    	Map.Entry<Character, Integer> front = waitQueue.poll();
+    	if (front.getValue() > 0) {
+    		q.offer(front);
+    	}
+    }
+    return res.length() == s.length() ? res.toString() : "";
+}
+
+//Analysis is critical
+10. Regular Expression Matching
+'.' Matches any single character.
+'*' Matches zero or more of the preceding element.
+
+44. Wildcard Matching
+'?' Matches any single character.
+'*' Matches any sequence of characters (including the empty sequence).
+
+23. Merge k Sorted Lists
+//heap
+//merge sort
+
+
+4. Median of Two Sorted Arrays
+//k/2 - 1
+
+
+139. Word Break (can or not)
+/*
+Given a non-empty string s and a dictionary wordDict containing a list of 
+non-empty words, determine if s can be segmented into a space-separated sequence 
+of one or more dictionary words.
+*/
+
+140. Word Break II
+/*
+Given a non-empty string s and a dictionary wordDict containing a list of non-empty
+words, add spaces in s to construct a sentence where each word is a valid dictionary 
+word. You may assume the dictionary does not contain duplicate words.
+
+Return all such possible sentences.
+*/
+
+Map<String, List<String>> map = new HashMap<>();
+public List<String> wordBreak(String s, List<String> wordDict) {
+	List<String> res = new ArrayList<>();
+	if (s == null || s.length() == 0) return res;
+	if (map.containsKey(s)) return map.get(s);
+	if (wordDict.contains(s)) {
+		res.add(s);
+	}
+	for (int i = s.length() - 1; i >= 0; i--) {
+		String w = s.substring(i);
+		if (wordDict.contains(w)) {
+			List<String> temp = wordBreak(s.substring(0, i), wordDict);
+			if (temp.size() > 0) {
+				for (String str : temp) {
+					res.add(str + " " + w);
+				}
+			}
+		}
+	}
+	map.put(s, res);
+	return res;
+}
+
+Word Break III
+http://lintcode.com/en/problem/word-break-iii/
+Give a dictionary of words and a sentence with all whitespace removed, return the 
+number of sentences you can form by inserting whitespaces to the sentence so that 
+each word can be found in the dictionary.
+
+private int res = 0;
+public int wordBreak3(String s, Set<String> dict) {
+    helper(s, dict, 0);
+    return res;
+}
+
+private void helper(String s, Set<String> dict, int pos) {
+    if (pos == s.length()) {
+        res++;
+        return;
+    }
+    for (int i = pos; i < s.length(); i++) {
+        String str = s.substring(pos, i + 1);
+        if (dict.contains(str)) {
+            helper(s, dict, i + 1);
+        }
+    }
+}
+
+
+336. Palindrome Pairs
+Given a list of unique words, find all pairs of distinct indices (i, j) in the given list, so that 
+the concatenation of the two words, i.e. words[i] + words[j] is a palindrome.
+//Naive way, n * n * len
+//better way, n * len * len
+for (int i = 0; i < words.length; i++) {
+	//abcd
+	for (int j = 0; j <= words[i].length; j++) {
+		String s1 = words[i].substring(j); //latter part
+		String s2 = words[i].substring(0, j);	//beginning part
+		if (isPalindrome(s1)) {
+			String s2rev = new StringBuilder(s2).reverse().toString();
+			if (map.containsKey(s2rev) && map.get(s2rev) != i) {
+				res.add(Arrays.asList(i, map.get(s2rev)));
+			}
+		}
+		if (isPalindrome(s2)) {
+			String s1rev = new StringBuilder(s1).reverse().toString();
+			if (map.containsKey(s1rev) && map.get(s1rev) != i && s2.length() != 0) {
+				res.add(Arrays.asList(map.get(s1rev), i));
+			}
+		}
+	}
+	return res;
+}
+
+224. Basic Calculator
+The expression string may contain open ( and closing parentheses ), the plus + or minus 
+sign -, non-negative integers and empty spaces .
+
+You may assume that the given expression is always valid
+
+"(1+(4+5+2)-3)+(6+8)" = 23
+
+//Stack
+//digit: get num
+//+: sign = 1
+//-: sign = -1
+//(: push result before '(' and sign, calculate the res in the ()
+//): pop the sign and result
+//1 + (1 - (4 + 5))
+
+227. Basic Calculator II
+Implement a basic calculator to evaluate a simple expression string.
+The expression string contains only non-negative integers, +, -, *, / operators and empty 
+spaces . The integer division should truncate toward zero.
+You may assume that the given expression is always valid.
+
+3+2*2 = 7
+
+//stack
+//sign = +, previous sign
+//'+' or '-', push to the stack
+//'*' or '/', pop from the stack, calculate and then push back
+
+640. Solve the Equation
+public String solveEquation(String equation) {
+    //if x = x: infinity
+    //if n * x = x: x = 0
+    //if x = x + n: no solution
+    //lhs, rhs
+    /*
+    String s = "x + 5 - 3 + x";
+    //String[] s1 = breakIt(s);
+    String[] s2 = s.split("(?=\\+)|(?=\\-)");
+    //System.out.println(s1[0]);
+    for (String str : s2) {
+        System.out.println(str);
+    }
+    return s; */
+    
+    String[] strs = equation.split("=");
+    int lhs = 0, rhs = 0;
+    for (String x : strs[0].split("(?=\\+)|(?=\\-)")) {             //
+        if (x.indexOf("x") >= 0) {
+            lhs += Integer.parseInt(coeff(x));
+        } else {
+            rhs -= Integer.parseInt(x);
+        }
+    }
+    for (String x : strs[1].split("(?=\\+)|(?=\\-)")) {
+        if (x.indexOf("x") >= 0) {
+            lhs -= Integer.parseInt(coeff(x));
+        } else {
+            rhs += Integer.parseInt(x);
+        }
+    }
+    if (lhs == 0) {
+        if (rhs == 0) {
+            return "Infinite solutions";
+        } else {
+            return "No solution"; 
+        }
+    } else {
+        return "x=" + rhs / lhs;
+    }
+}
+String coeff(String s) {
+    if (s.length() > 1 && s.charAt(s.length() - 2) >= '0' && s.charAt(s.length() - 2) <= '9') {
+        return s.replace("x", "");
+    } else {
+        return s.replace("x", "1");
+    }
+}
+
+
+363. Max Sum of Rectangle No Larger Than K
+Given a non-empty 2D matrix matrix and an integer k, find the max sum of a rectangle in 
+the matrix such that its sum is no larger than k.
+Given matrix = [
+  [1,  0, 1],
+  [0, -2, 3]
+]
+k = 2
+
+//Naive way, n ^ 2 to get the dp...n ^ 4 (all top-left and bottom-right points)
+//Range sum - 2D, immutable
+public int maxSumSubmatrix(int[][] matrix, int k) {
+	if (matrix.length == 0 || matrix[0].length == 0) return 0;
+    int m = matrix.length, n = matrix[0].length;
+    int res = Integer.MIN_VALUE;
+    for (int l = 0; l < n; l++) {
+        int[] sums = new int[m];
+        for (int r = l; r < n; r++) {
+            for (int i = 0; i < m; i++) {
+                sums[i] += matrix[i][r];
+            }
+            TreeSet<Integer> set = new TreeSet<>();
+            set.add(0);  //padding
+            int currSum = 0;
+            for (int sum : sums) {			//tricky, floor(k) won't work
+            /*
+            [[5,-4,-3,4],[-3,-4,4,5],[5,1,5,-4]]
+			8
+            */
+                currSum += sum;
+                //ceiling(currSum - k)
+                Integer num = set.ceiling(currSum - k);
+                if (num != null) {
+                    res = Math.max(res, currSum - num);
+                }
+                set.add(currSum);
+            }
+        }
+    }
+    return res;
+    /*
+    //O(m*n*m*n)
+    if (matrix.length == 0 || matrix[0].length == 0) return 0;
+    int m = matrix.length, n = matrix[0].length;
+    int res = Integer.MIN_VALUE;
+    int[][] f = new int[m][n];
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < n; j++) {
+            int temp = matrix[i][j];
+            if (i > 0) {
+                temp += f[i - 1][j];
+            }
+            if (j > 0) {
+                temp += f[i][j - 1];
+            }
+            if (i > 0 && j > 0) {
+                temp -= f[i - 1][j - 1];
+            }
+            f[i][j] = temp;
+        }
+    }
+    
+    for (int r1 = 0; r1 < m; r1++) {
+        for (int c1 = 0; c1 < n; c1++) {
+            for (int r2 = r1; r2 < m; r2++) {           //r1
+                for (int c2 = c1; c2 < n; c2++) {       //c1
+                    int temp = f[r2][c2];
+                    if (r1 > 0) {
+                        temp -= f[r1 - 1][c2];          //c2
+                    }
+                    if (c1 > 0) {                       //r2
+                        temp -= f[r2][c1 - 1];
+                    }
+                    if (r1 > 0 && c1 > 0) {
+                        temp += f[r1 - 1][c1 - 1];      //[r1-1][c1-1]
+                    }
+                    if (temp <= k) {
+                        res = Math.max(res, temp);
+                    }
+                }
+            }
+        }
+    }
+    return res; */
+}
+
+
+354. Russian Doll Envelopes
+Given envelopes = [[5,4],[6,4],[6,7],[2,3]], the maximum number of envelopes you can 
+Russian doll is 3 ([2,3] => [5,4] => [6,7]).
+//sort by start, [2,3] [5,4] [6,4] [6 7]
+//just an extension of 1-D LIS
+public int maxEnvelopes(int[][] envelopes) {
+    if (envelopes == null || envelopes.length == 0 || envelopes[0].length == 0) return 0;
+    int n = envelopes.length;
+    int[] f = new int[n];
+    Arrays.sort(envelopes, (a, b) -> (a[0] == b[0] ? a[1] - b[1] : a[0] - b[0]));
+    
+    int max = 0;
+    for (int i = 0; i < n; i++) {
+        f[i] = 1;
+        for (int j = 0; j < i; j++) {
+            if (envelopes[i][0] > envelopes[j][0] && envelopes[i][1] > envelopes[j][1]) {
+                f[i] = Math.max(f[i], f[j] + 1);
+            }
+        }
+        max = Math.max(max, f[i]);
+    }
+    return max;
+}
+
+668. Kth Smallest Number in Multiplication Table
+Input: m = 3, n = 3, k = 5
+Output: 
+Explanation: 
+The Multiplication Table:
+1	2	3
+2	4	6
+3	6	9
+
+public int findKthNumber(int m, int n, int k) {
+	//O(lg(mn) * min(m, n))
+    int start = 1, end = m * n;
+    while (start + 1 < end) {
+        int mid = start + (end - start) / 2;
+        int c = count(mid, m, n);
+        if (c >= k) end = mid;          //not first c == k
+        else start = mid;
+    }
+    System.out.println(start + " " + end);
+    System.out.println(count(start, m, n) + " " + count(end, m, n));
+    if (count(start, m, n) == k) return start;
+    if (count(end, m, n) == k) return end;
+    	return end;  //test case: 45, 12, 471 (470, 472)
+}
+
+private int count(int v, int m, int n) {
+	int sum = 0;
+	for (int i = 1; i <= m; i++) {
+		int row = Math.min(v / i, n);
+		sum += row;
+	}
+	return sum;
+}
+
+272. Closest Binary Search Tree Value II
+Given a non-empty binary search tree and a target value, find k values in the BST 
+that are closest to the target.
+//find k pre, k post, then pick k
+public List<Integer> closestKValues(TreeNode root, double target, int k) {
+    Deque<Integer> s1 = new ArrayDeque<>();
+    Deque<Integer> s2 = new ArrayDeque<>();
+    getPredecessor(s1, root, target);
+    getSuccessor(s2, root, target);
+    List<Integer> res = new ArrayList<>();
+    while (k > 0) {
+        if (s1.isEmpty()) res.add(s2.pop());
+        else if (s2.isEmpty()) res.add(s1.pop());
+        else {
+            if (Math.abs(s1.peek() - target) < Math.abs(s2.peek() - target)) {
+                res.add(s1.pop());
+            } else {
+                res.add(s2.pop());
+            }
+        }
+        k--;
+    }
+    return res;
+}
+
+private void getPredecessor(Stack<Integer> s1, TreeNode root, double target) {
+    if (root == null) return;
+    getPredecessor(s1, root.left, target);
+    if (root.val <= target) {
+        s1.push(root.val);
+    } else {
+        return;
+    }
+    getPredecessor(s1, root.right, target);
+}
+
+private void getSuccessor(Stack<Integer> s2, TreeNode root, double target) {
+    if (root == null) return;
+    getSuccessor(s2, root.right, target);
+    if (root.val > target) {
+        s2.push(root.val);
+    } else {
+        return;
+    }
+    getSuccessor(s2, root.left, target);
+}
+
+
+302. Smallest Rectangle Enclosing Black Pixels
+[
+  "0010",
+  "0110",
+  "0100"
+]
+and x = 0, y = 2,
+Return 6
+
+public int minArea(char[][] image, int x, int y) {
+    //O(mn)
+    if (image.length == 0 || image[0].length == 0) return 0;
+    int m = image.length, n = image[0].length;
+    int left = y, right = y + 1, top = x, bottom = x + 1;
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < n; j++) {
+            if (image[i][j] == '1') {
+                left = Math.min(left, j);
+                right = Math.max(right, j + 1);
+                top = Math.min(top, i);
+                bottom = Math.max(bottom, i + 1);
+            }
+        }
+    }
+    return (right - left) * (bottom - top);
+}
+
+/* binary search, O(mlgn + nlgm)
+public int minArea(char[][] image, int x, int y) {
+    if (image == null || image.length == 0 || image[0].length == 0) {
+        return 0;
+    }
+    
+    int n = image.length;
+    int m = image[0].length;
+    
+    int left = findLeft(image, 0, y);
+    int right = findRight(image, y, m - 1);
+    int top = findTop(image, 0, x);
+    int bottom = findBottom(image, x, n - 1);
+
+    return (right - left + 1) * (bottom - top + 1);
+}
+
+private int findLeft(char[][] image, int start, int end) {
+    while (start + 1 < end) {
+        int mid = start + (end - start) / 2;
+        if (isEmptyColumn(image, mid)) {
+            start = mid;
+        } else {
+            end = mid;
+        }
+    }
+    
+    if (isEmptyColumn(image, start)) {
+        return end;
+    }
+    
+    return start;
+} */
+
+330. Patching Array
+Given a sorted positive integer array nums and an integer n, add/patch elements to 
+the array such that any number in range [1, n] inclusive can be formed by the sum 
+of some elements in the array. Return the minimum number of patches required.
+
+nums = [1, 5, 10], n = 20
+Return 2.
+The two patches can be [2, 4]
+
+[2], [4]
+
+For example, you have any array nums = [1,2,3,8] and n = 16. The numbers already covered 
+is in the ranges [1, 6] and [8, 14]. In other words, 7, 15, 16 are missing. 
+If you add patches larger than 7, then 7 is still missing.
+[1, miss), patch x (x <= miss), [x, x + miss) covered, to make (x + miss) largest, 
+x = miss
+
+proof by contradiction
+
+public int minPatches(int[] nums, int n) {
+	int patches = 0, i = 0;
+	long miss = 1;
+	while (miss <= n) {
+		if (i < nums.length && nums[i] <= miss) {	//1
+			miss += nums[i++];		//2
+		} else {					
+			miss += miss;			//4
+			patches++;
+		}
+	}
+}
+
+
+
+282. Expression Add Operators
+"123", 6 -> ["1+2+3", "1*2*3"] 
+"232", 8 -> ["2*3+2", "2+3*2"]
+
+public List<String> addOperators(String num, int target) {
+	List<String> res = new ArrayList<>();
+	helper(res, "", num, target, 0, 0L, 0L);
+	return res;
+}
+
+private void helper(List<String> res, String s, String num, int target, int pos, long eval, long multi) {
+	if (pos == num.length()) {
+		if (sum == target) {
+			res.add(s);
+		}
+		return;
+	}
+	for (int i = pos; i < num.length(); i++) {
+		if (i == pos && num.charAt(pos) == '0') {
+			break;
+		}
+		long cur = Long.parseLong(num.substring(pos, i + 1));
+		if (pos == 0) {
+			helper(res, "" + cur, num, target, i + 1, cur, cur);
+		} else {
+			helper(res, s + "+" + cur, num, target, i + 1, eval + cur, cur)
+			helper(res, s + "-" + cur, num, target, i + 1, eval - cur, -cur)
+			helper(res, s + "*" + cur, num, target, i + 1, eval - multi + multi * cur, multi * cur);
+		}
+	}
+}
+
+241. Different Ways to Add Parentheses
+Given a string of numbers and operators, return all possible results from computing all the 
+different possible ways to group numbers and operators. The valid operators are +, - and *.
+
+Input: "2*3-4*5"
+
+(2*(3-(4*5))) = -34
+((2*3)-(4*5)) = -14
+((2*(3-4))*5) = -10
+(2*((3-4)*5)) = -10
+(((2*3)-4)*5) = 10
+
+public List<Integer> diffWaysToCompute(String input) {
+	List<Integer> res = new ArrayList<>();
+	if (input == null || input.length() == 0) return res;
+	for (int i = 0; i < input.length(); i++) {
+		char ch = input.charAt(i);
+		if (ch == '+' || ch == '-' || ch == '*') {
+			String s1 = input.substring(0, i);
+			String s2 = input.substring(i + 1);
+			List<Integer> l1 = diffWaysToCompute(s1);
+			List<Integer> l2 = diffWaysToCompute(s2);
+			for (l1 != null && l2 != null) {
+				for (int p1 : l1) {
+					for (int p2 : l2) {
+						int c = 0;
+						if (ch == '+') c = p1 + p2;
+						if (ch == '-') c = p1 - p2;
+						if (ch == '*') c = p1 * p2;
+						res.add(c);
+					}
+				}
+			}
+		}
+	}
+	if (res.size() == 0) {				//exit!!!
+		res.add(Integer.parseInt(input));
+	}
+	return res;
+}
+
+
+321. Create Maximum Number
+Given two arrays of length m and n with digits 0-9 representing two numbers. Create the maximum 
+number of length k <= m + n from digits of the two. The relative order of the digits from the 
+same array must be preserved. Return an array of the k digits. You should try to optimize your 
+time and space complexity.
+
+nums1 = [3, 4, 6, 5]
+nums2 = [9, 1, 2, 5, 8, 3]
+k = 5
+
+return [9 8 6 5 3]     
+
+pick i numbers from m and k - i from n, enumerate all possible results and find the max
+
+public int[] maxNumber(int[] A, int[] B, int k) {
+	int m = A.length, n = B.length;
+	int[] res = new int[k];
+	for (int i = Math.max(0, k - n); i <= m && i <= k; i++) {
+		int[] candidate = merge(maxArray(A, i), maxArray(B, k - i));
+		if (greater(candidate, 0, res, 0)) {
+			res = candidate;
+		}
+	}
+	return res;
+}              
+
+private int[] maxArray(int[] nums, int k) {
+	int n = nums.length;
+	int[] res = new int[k];
+	for (int i = 0, j = 0; i < n; i++) {
+		while (n - i > k - j && j > 0 && res[j - 1] < nums[i]) j--;
+		if (j < k) res[j++] = nums[i];
+	}
+	return res;
+}              
+
+private int[] merge(int[] n1, int[] n2, int k) {
+	int i = 0, j = 0, r = 0;
+	int[] res = new int[k];
+	while (r < k) {
+		if (greater(n1, i, n2, j)) {
+			res[r++] = n1[i++];
+		} else {
+			res[r++] = n2[j++];
+		}
+	}
+	return res;
+}
+
+private boolean greater(int[] n1, int i, int[] n2, int j) {
+	while (i < n1.length && j < n2.length && n1[i] == n2[j]) {
+		i++;
+		j++;
+	}
+	return j == n2.length || (i < n1.length && n1[i] > n2[j]);
+}
