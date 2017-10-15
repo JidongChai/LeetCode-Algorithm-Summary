@@ -1,0 +1,677 @@
+208. Implement Trie (Prefix Tree)
+/*
+Implement a trie with insert, search, and startsWith methods.
+You may assume that all inputs are consist of lowercase letters a-z.
+*/
+
+//array or map
+class Trie {
+
+    class Node {
+        Node[] child;
+        boolean isEnd;
+        Node() {
+            this.child = new Node[26];
+            this.isEnd = false;
+        }
+    }
+
+    private Node root;
+
+    public Trie() {
+        root = new Node();
+    }
+    public void insert(String word) {
+        Node p = root;
+        for (char ch : word.toCharArray()) {
+            if (p.child[ch - 'a'] == null) {
+                p.child[ch - 'a'] = new Node();
+            }
+            p = p.child[ch - 'a'];
+        }
+        p.isEnd = true;
+    }
+
+    public boolean search(String word) {
+        Node p = root;
+        for (char ch : word.toCharArray()) {
+            if (p.child[ch - 'a'] == null) {
+                return false;
+            }
+            p = p.child[ch - 'a'];
+        }
+        return p.isEnd;
+    }
+
+    public boolean startsWith(String prefix) {
+        Node p = root;
+        for (char ch : prefix.toCharArray()) {
+            if (p.child[ch - 'a'] == null) {
+                return false;
+            }
+            p = p.child[ch - 'a'];
+        }
+        return true;
+    }
+}
+
+
+677. Map Sum Pairs
+/*
+Implement a MapSum class with insert, and sum methods.
+For the method insert, you'll be given a pair of (string, integer). The string represents the key 
+and the integer represents the value. If the key already existed, then the original key-value pair
+will be overridden to the new one.
+
+For the method sum, you'll be given a string representing the prefix, and you need to return the 
+sum of all the pairs' value whose key starts with the prefix.
+*/
+//Bruteforce, O(n * k)
+//Trie
+class MapSum {
+    HashMap<String, Integer> map;
+    TrieNode root;
+    public MapSum() {
+        map = new HashMap<>();
+        root = new TrieNode();
+    }
+    //O(k)
+    public void insert(String key, int val) {
+        int delta = val - map.getOrDefault(key, 0);     //for override
+        map.put(key, val);
+        TrieNode cur = root;
+        //cur.score += delta;
+        for (char ch : key.toCharArray()) {
+            cur.child.putIfAbsent(ch, new TrieNode());
+            cur = cur.child.get(ch);
+            cur.score += delta;
+        }
+    }
+    //O(k)
+    public int sum(String prefix) {
+        TrieNode cur = root;
+        for (char ch : prefix.toCharArray()) {
+            cur = cur.child.get(ch);
+            if (cur == null) return 0;
+        }
+        return cur.score;
+    }
+
+    class TrieNode {
+        Map<Character, TrieNode> child = new HashMap<>();
+        int score;
+    }
+}
+
+//HashMap
+class MapSum {
+    Map<String, Integer> map;
+    Map<String, Integer> score;
+    public MapSum() {
+        map = new HashMap<>();
+        score = new HashMap<>();
+    }
+    //O(k^2)
+    public void insert(String key, int val) {
+        int delta = val - map.getOrDefault(key, 0);
+        map.put(key, val);
+        String prefix = "";
+        for (char ch : key.toCharArray()) {
+            prefix += ch;
+            score.put(prefix, score.getOrDefault(prefix, 0) + delta);
+        }
+    }
+    public int sum(String prefix) {
+        return score.getOrDefault(prefix, 0);
+    }
+}
+
+676. Implement Magic Dictionary
+/*
+Implement a magic directory with buildDict, and search methods.
+For the method buildDict, you'll be given a list of non-repetitive words to build a dictionary.
+For the method search, you'll be given a word, and judge whether if you modify exactly one 
+character into another character in this word, the modified word is in the dictionary you just built.
+*/
+
+//List/Set: O(n * k)
+private List<String> words;
+    /** Initialize your data structure here. */
+public MagicDictionary() {
+    words = new ArrayList<>();
+}
+
+/** Build a dictionary through a list of words */
+public void buildDict(String[] dict) {
+    for (String s : dict) {
+        words.add(s);
+    }
+}
+
+/** Returns if there is any word in the trie that equals to the given word after modifying exactly one character */
+public boolean search(String word) {
+    for (String s : words) {
+        if (word.length() != s.length()) {
+            continue;
+        }
+        if (helper(s, word)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+public boolean
+
+//Map: O(k * n), put all substrings by removing one char
+Map<String, List<int[]>> map;
+public MagicDictionary() {
+    map = new HashMap<>();
+}
+public void buildDict(String[] dict) {
+    for (String s : dict) {
+        for (int i = 0; i < s.length(); i++) {
+            String key = s.substring(0, i) + s.susbtring(i + 1);
+            int[] pair = new int[] {i, s.charAt(i)};
+            List<int[]> val = map.getOrDefault(key, new ArrayList<int[]>());
+            val.add(pair);
+            map.put(key, val);
+        }
+    }
+}
+public boolean search(String word) {
+    for (int i = 0; i < word.length(); i++) {
+        String key = word.substring(0, i) + word.substring(i + 1);
+        if (map.containsKey(key)) {
+            for (int[] pair : map.get(key)) {
+                if (pair[0] == i && pair[1] != word.charAt(i)) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+//Trie: O(len * 26^len)
+
+class TrieNode {
+    TrieNode[] children = new TrieNode[26];
+    boolean isWord;
+}
+TrieNode root;
+public MagicDictionary() {
+    root = new TrieNode();
+}
+public void buildDict(String[] dict) {
+    for (String s : dict) {
+        TrieNode node = root;
+        for (char ch : s.toCharArray()) {
+            if (node.children[ch - 'a'] == null) {
+                node.children[ch - 'a'] = new TrieNode();
+            }
+            node = node.children[ch - 'a'];
+        }
+        node.isWord = true;
+    }
+}
+public boolean search(String word) {
+    char[] arr = word.toCharArray();
+    for (int i = 0; i < word.length(); i++) {
+        for (char ch = 'a'; ch <= 'z'; ch++) {
+            if (arr[i] == ch) {
+                continue;
+            }
+            char temp = arr[i];
+            arr[i] = ch;
+            if (helper(new String(arr))) {
+                return true;
+            }
+            arr[i] = temp;
+        }
+    }
+    return false;
+}
+public boolean helper(String s) {
+    TrieNode node = root;
+    for (char ch : s.toCharArray()) {
+        if (node.children[ch - 'a'] == null) {
+            return false;
+        }
+        node = node.children[ch - 'a'];
+    }
+    return node.isWord;
+}
+
+
+211. Add and Search Word - Data structure design
+search(word) can search a literal word or a regular expression string containing only 
+letters a-z or .. A . means it can represent any one letter.
+
+public boolean search(String word) {
+    return match(word.toCharArray(), 0, root);
+}
+
+private boolean match(char[] word, int pos, TrieNode p) {
+    if (pos == word.length) {
+        if (p.isWord) return true;
+        return false;
+    }
+    char ch = word[pos];
+    if (ch != '.') {
+        return p.child[ch - 'a'] != null && match(word, pos + 1, p.child[ch - 'a']);
+    } else {
+        for (int i = 0; i < 26; i++) {
+            if (p.child[i] != null) {
+                if (match(word, pos + 1, p.child[i])) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+
+648. Replace Words
+/*
+Now, given a dictionary consisting of many roots and a sentence. You need to replace 
+all the successor in the sentence with the root forming it. If a successor has many 
+roots can form it, replace it with the root with the shortest length.
+
+Input: dict = ["cat", "bat", "rat"]
+sentence = "the cattle was rattled by the battery"
+Output: "the cat was rat by the bat"
+*/
+
+//Map: O(n * l * l)
+public String replaceWords(List<String> dict, String sentence) {
+    Set<String> set = new HashSet<>();
+    for (String s : dict) {
+        set.add(s);
+    }
+    String[] strs = sentence.split("\\s");
+    for (int i = 0; i < strs.length; i++) {
+        String curr = strs[i];
+        for (int j = 1; j <= curr.length(); j++) {
+            String prefix = curr.substring(0, j);
+            if (set.contains(prefix)) {
+                strs[i] = prefix;
+                break;
+            }
+        }
+    }
+    StringBuilder res = new StringBuilder();
+    for (String s : strs) {
+        res.append(s).append(" ");
+    }
+    res.deleteCharAt(res.length() - 1);
+    return res.toString();
+}
+
+//Trie: O(n * l)
+public String replaceWords(List<String> dict, String sentence) {
+    String[] strs = sentence.split("\\s");
+    TrieNode root = buildTrie(dict);
+    return replaceWords(strs, root);
+}
+
+private String replaceWords(String[] strs, TrieNode root) {
+    StringBuilder res = new StringBuilder();
+    for (String s : strs) {
+        res.append(helper(s, root)).append(" ");
+    }
+    return res.substring(0, res.length() - 1);
+}
+
+private String helper(String s, TrieNode root) {
+    TrieNode p = root;
+    StringBuilder res = new StringBuilder();
+    for (char ch : s.toCharArray()) {
+        res.append(ch);
+        if (p.children[ch - 'a'] != null) {
+            if (p.children[ch - 'a'].isWord) {
+                return res.toString();
+            }
+            p = p.children[ch - 'a'];
+        } else {
+            return s;
+        }
+    }
+    return s;
+}
+
+private TrieNode buildTrie(List<String> dict) {
+    TrieNode root = new TrieNode();
+    for (String word : dict) {
+        TrieNode p = root;
+        for (char ch : word.toCharArray()) {
+            if (p.children[ch - 'a'] == null) {
+                p.children[ch - 'a'] = new TrieNode();
+            }
+            p = p.children[ch - 'a'];
+        }
+        p.isWord = true;
+    }
+    return root;
+}
+
+class TrieNode {
+    TrieNode[] children;
+    boolean isWord;
+    TrieNode() {
+        this.children = new TrieNode[26];
+        this.isWord = false;
+    }
+}
+
+212. Word Search II
+/*
+Given a 2D board and a list of words from the dictionary, find all words in the board.
+Given words = ["oath","pea","eat","rain"] and board =
+
+[
+  ['o','a','a','n'],
+  ['e','t','a','e'],
+  ['i','h','k','r'],
+  ['i','f','l','v']
+]
+Return ["eat","oath"]
+*/
+
+//brute force: check for each word in dict using word search I, O(n * wordSearch I)
+//trie: buildTrie for the dict, search, O(m * n * l)
+
+public List<String> findWords(char[][] board, String[] words) {
+    TrieNode root = buildTrie(words);
+    List<String> res = new ArrayList<>();
+    int m = board.length, n = board[0].length;
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < n; j++) {
+            dfs(baord, i, j, root, res);
+        }
+    }
+    return res;
+}
+private void dfs(char[][] board, int i, int j, TrieNode p, List<String> res) {
+    char ch = board[i][j];
+    if (ch == '#' || p.children[ch - 'a'] == null) return;
+    p = p.children[ch - 'a'];
+    if (p.word != null) {
+        res.add(p.word);
+        p.word = null;  //avoid duplicates
+    }
+    board[i][j] = '#';
+    if (i > 0) dfs(board, i - 1, j, p, res); 
+    if (j > 0) dfs(board, i, j - 1, p, res);
+    if (i < board.length - 1) dfs(board, i + 1, j, p, res); 
+    if (j < board[0].length - 1) dfs(board, i, j + 1, p, res); 
+    board[i][j] = ch;
+}
+public TrieNode buildTrie(String[] words) {
+    TrieNode root = new TrieNode();         //
+    for (String w : words) {
+        TrieNode p = root;                  //
+        for (char c : w.toCharArray()) {
+            int i = c - 'a';
+            if (p.next[i] == null) p.next[i] = new TrieNode();
+            p = p.next[i];
+       }
+       p.word = w;
+    }
+    return root;
+}
+
+class TrieNode {
+    TrieNode[] next = new TrieNode[26];
+    String word;
+}
+
+472. Concatenated Words
+/*
+Given a list of words (without duplicates), please write a program that returns all concatenated 
+words in the given list of words.
+A concatenated word is defined as a string that is comprised entirely of at least two 
+shorter words in the given array. 
+*/
+
+public List<String> findAllConcatenatedWordsInADict(String[] words) {
+    //Using word break
+    //sort by length
+    //if (canBreak(word[i], preWords)) then add to the result
+    //O(n * wordLen^3) considering .substring is not O(1)
+    List<String> res = new ArrayList<>();
+    if (words.length == 0) return res;
+    Set<String> preWords = new HashSet<>();
+    Arrays.sort(words, (a, b) -> (a.length() - b.length()));
+    for (int i = 0; i < words.length; i++) {
+        if (canConcat(words[i], preWords)) {
+            res.add(words[i]);
+        }
+        preWords.add(words[i]);
+    }
+    return res;
+}
+
+private boolean canConcat(String word, Set<String> dict) {
+    if (dict.isEmpty()) return false;
+    boolean[] f = new boolean[word.length() + 1];
+    f[0] = true;
+    for (int i = 1; i <= word.length(); i++) {
+        for (int j = 0; j < i; j++) {
+            if (!f[j]) continue;
+            if (f[j] && dict.contains(word.substring(j, i))) {
+                f[i] = true;
+                break;
+            }
+        }
+    }
+    return f[word.length()];
+}
+
+//Trie: O(n * wordLen ^ 2)
+public List<String> findAllConcatenatedWordsInADict(String[] words) {
+    TrieNode root = buildTrie(words);
+    List<String> res = new ArrayList<>();
+    for (String word : words) {
+        if (helper(word.toCharArray(), 0, root, 0)) {
+            res.add(word);
+        }
+    }
+    return res;
+}
+private boolean helper(char[] chars, int pos, TrieNode root, int count) {
+    TrieNode p = root;
+    int n = chars.length;
+    for (int i = pos; i < n; i++) {
+        if (p.children[chars[i] - 'a'] == null) {
+            return false;
+        }
+        if (p.children[chars[i] - 'a'].isWord) {
+            if (i == n - 1) {
+                return count >= 1;
+            }
+            if (helper(chars, i + 1, root, count + 1)) {
+                return true;
+            }
+        }
+        p = p.children[chars[i] - 'a'];
+    }
+    return false;
+}
+
+642. Design Search Autocomplete System
+/*
+Operation: AutocompleteSystem(["i love you", "island","ironman", "i love leetcode"], [5,3,2,2]) 
+The system have already tracked down the following sentences and their corresponding times: 
+"i love you" : 5 times 
+"island" : 3 times 
+"ironman" : 2 times 
+"i love leetcode" : 2 times 
+Now, the user begins another search: 
+
+Operation: input('i') 
+Output: ["i love you", "island","i love leetcode"] 
+Explanation: 
+There are four sentences that have prefix "i". Among them, "ironman" and "i love leetcode" 
+have same hot degree. Since ' ' has ASCII code 32 and 'r' has ASCII code 114, "i love leetcode" 
+should be in front of "ironman". Also we only need to output top 3 hot sentences, so "ironman" 
+will be ignored. 
+
+Operation: input(' ') 
+Output: ["i love you","i love leetcode"] 
+Explanation: 
+There are only two sentences that have prefix "i ". 
+
+Operation: input('a') 
+Output: [] 
+Explanation: 
+There are no sentences that have prefix "i a". 
+
+Operation: input('#') 
+Output: [] 
+Explanation: 
+The user finished the input, the sentence "i a" should be saved as a historical sentence 
+in system. And the following input will be counted as a new search. 
+*/
+
+//HashMap<sentence, times>: O(n * l), TLE
+Map<String, Integer> map;
+String cur;
+public AutocompleteSystem(String[] sentences, int[] times) {
+    map = new HashMap<>();
+    for (int i = 0; i < sentences.length; i++) {
+        map.put(sentences[i], times[i]);
+    }
+    cur = "";
+}
+public List<String> input (char c) {
+    List<String> res = new ArrayList<>();
+    if (c == '#') {
+        map.put(cur, map.getOrDefault(cur, 0) + 1);
+        cur = "";
+    } else {
+        Queue<Map.Entry<String, Integer>> pq = new PriorityQueue<>((a, b) -> 
+            (a.getValue() == b.getValue() ? b.getKey().compareTo(a.getKey()) : a.getValue() - b.getValue()));
+        cur += c;
+        for (Map.Entry<String, Integer> e : map.entrySet()) {
+            if (e.getKey().indexOf(cur) == 0) {
+                pq.offer(e);
+                if (pq.size() > 3) {
+                    pq.poll();
+                }
+            }
+        }
+        //System.out.println(pq.size());
+        int count = Math.min(3, pq.size());
+        for (int i = 0; i < count; i++) {
+            res.add(0, pq.poll().getKey());
+        }
+    }
+    return res;
+}
+
+//HashMap: using one level indexing, O(s * l), s is the size of HashMap
+Map<String, Integer>[] map;
+String cur;
+public AutocompleteSystem(String[] sentences, int[] times) {
+    map = new HashMap[26];
+    for (int i = 0; i < 26; i++) {
+        arr[i] = new HashMap<>();
+    }
+    for (int i = 0; i < sentences.length; i++) {
+        arr[sentences[i].charAt(0) - 'a'].put(sentences[i], times[i]);
+    }
+    cur = "";
+}
+public List<String> input (char c) {
+    List<String> res = new ArrayList<>();
+    if (c == '#') {
+        arr[cur.charAt(0) - 'a'].put(cur, arr[cur.charAt(0) - 'a'].getOrDefault(cur, 0) + 1);
+        cur = "";
+    } else {
+        Queue<Map.Entry<String, Integer>> pq = new PriorityQueue<>((a, b) -> 
+            (a.getValue() == b.getValue() ? b.getKey().compareTo(a.getKey()) : a.getValue() - b.getValue()));
+        cur += c;
+        for (Map.Entry<String, Integer> e : arr[cur.charAt(0) - 'a'].entrySet()) {
+            if (e.getKey().indexOf(cur) == 0) {
+                pq.offer(e);
+                if (pq.size() > 3) {
+                    pq.poll();
+                }
+            }
+        }
+        int count = Math.min(3, pq.size());
+        for (int i = 0; i < count; i++) {
+            res.add(0, pq.poll().getKey());
+        }
+    }
+    return res;
+}
+
+//Trie: O(l), can store top3 for each TrieNode for further optimization
+class TrieNode {
+    Map<Character, TrieNode> children;
+    Map<String, Integer> counts;
+    boolean isWord;
+    TrieNode() {
+        this.children = new HashMap<>();
+        counts = new HashMap<>();
+        isWord = false;
+    }
+}
+TrieNode root;
+String prefix;
+
+public AutocompleteSystem(String[] sentences, int[] times) {
+    root = new TrieNode();
+    prefix = "";
+    for (int i = 0; i < sentences.length; i++) {
+        add(sentences[i], times[i]);
+    }
+}
+private void add(String s, int count) {
+    TrieNode cur = root;
+    for (char c : s.toCharArray()) {
+        TrieNode next = cur.children.get(c);
+        if (next == null) {
+            next = new TrieNode();
+            cur.children.put(c, next);
+        }
+        cur = next;
+        cur.counts.put(s, cur.counts.getOrDefault(s, 0) + count);
+    }
+    cur.isWord = true;
+}
+public List<String> input(char c) {
+    if (c == '#') {
+        add(prefix, 1);
+        prefix = "";
+        return new ArrayList<String>();
+    } 
+    prefix += c;
+    TrieNode cur = root;
+    for (char ch : prefix.toCharArray()) {
+        TrieNode next = cur.children.get(ch);
+        if (next == null) {
+            return new ArrayList<String>();
+        }
+        cur = next;
+    }
+    List<String> res = new ArrayList<>();
+    Queue<Map.Entry<String, Integer>> pq = new PriorityQueue<>((a, b) -> 
+            (a.getValue() == b.getValue() ? b.getKey().compareTo(a.getKey()) : a.getValue() - b.getValue()));
+    for (Map.Entry<String, Integer> e : cur.counts.entrySet()) {
+        if (e.getKey().indexOf(prefix) == 0) {
+            pq.offer(e);
+            if (pq.size() > 3) {
+                pq.poll();
+            }
+        }
+    }
+    int size = Math.min(3, pq.size());
+    for (int i = 0; i < size; i++) {
+        res.add(0, pq.poll().getKey());
+    }
+    return res;
+}
