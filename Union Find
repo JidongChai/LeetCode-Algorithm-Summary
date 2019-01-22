@@ -18,9 +18,9 @@ int find(int i) {
 union
 original:
 public void union(int i, int j) {
-    int irep = this.Find(i);
-    int jrep = this.Find(j);
-    this.Parent[irep] = jrep;
+    int irep = this.find(i);
+    int jrep = this.find(j);
+    this.parent[irep] = jrep;
 }
 optimized by rank:
 void union(int i, int j) {
